@@ -12,10 +12,10 @@ use DivisionByZeroError;
  */
 class Complex
 {
-    
-    private $real;
 
-    private $imaginary;
+    public $real;
+
+    public $imaginary;
 
     public function __construct($real, $imaginary)
     {
@@ -53,72 +53,85 @@ class Complex
         return $this->imaginary;
     }
 
-    public function __toString(): string
-    {
-        $sign = $this->imaginary < 0 ? '-' : '+';
-
-        return sprintf('%s %s %si', $this->real, $sign, abs($this->imaginary));
-    }
 
     /**
      * Сложение
-     * @param Complex $a
      * @param Complex $b
      * @return Complex
      */
-    public static function addition(Complex $a, Complex $b): Complex
+    public function addition(Complex $b): Complex
     {
-        $new_real = $a->real() + $b->real();
-        $new_imaginary = $a->imaginary() + $b->imaginary();
+        $new_real = $this->real() + $b->real();
+        $new_imaginary = $this->imaginary() + $b->imaginary();
 
         return new static($new_real, $new_imaginary);
     }
 
     /**
      * Вычитание
-     * @param Complex $a
      * @param Complex $b
      * @return Complex
      */
-    public static function subtraction(Complex $a, Complex $b): Complex
+    public function subtraction(Complex $b): Complex
     {
-        $new_real = $a->real() - $b->real();
-        $new_imaginary = $a->imaginary() - $b->imaginary();
+        $new_real = $this->real() - $b->real();
+        $new_imaginary = $this->imaginary() - $b->imaginary();
 
         return new static($new_real, $new_imaginary);
     }
 
     /**
      * Умножение
-     * @param Complex $a
      * @param Complex $b
      * @return Complex
      */
-    public static function multiplication(Complex $a, Complex $b): Complex
+    public function multiplication(Complex $b): Complex
     {
-        $new_real = $a->real() * $b->real() - $a->imaginary() * $b->imaginary();
-        $new_imaginary = $a->imaginary() * $b->real() + $a->real() * $b->imaginary();
+        $new_real = $this->real() * $b->real() - $this->imaginary() * $b->imaginary();
+        $new_imaginary = $this->imaginary() * $b->real() + $this->real() * $b->imaginary();
 
         return new static($new_real, $new_imaginary);
     }
 
     /**
      * Деление
-     * @param Complex $a
      * @param Complex $b
      * @return Complex
      */
-    public static function division(Complex $a, Complex $b): Complex
+    public function division(Complex $b): Complex
     {
         if ($b->real() == 0 && $b->imaginary() == 0) {
             throw new DivisionByZeroError('Division by zero');
         }
 
         $divisor = $b->real() ** 2 + $b->imaginary() ** 2;
-        $new_real = ($a->real() * $b->real() + $a->imaginary() * $b->imaginary()) / $divisor;
-        $new_imaginary = ($a->imaginary() * $b->real() - $a->real() * $b->imaginary()) / $divisor;
+        $new_real = ($this->real() * $b->real() + $this->imaginary() * $b->imaginary()) / $divisor;
+        $new_imaginary = ($this->imaginary() * $b->real() - $this->real() * $b->imaginary()) / $divisor;
 
         return new static($new_real, $new_imaginary);
+    }
+
+    /**
+     * @param float $real
+     * @param float $imaginary
+     * @return Complex
+     */
+    public static function algebraic(float $real, float $imaginary): Complex
+    {
+        return new AlgebraicComplex($real, $imaginary);
+    }
+
+    /** Приведение тригонометрических значений к алгебраическим, добавлен параметр округления $round
+     * @param float $module
+     * @param float $fi
+     * @param int $round
+     * @return Complex
+     */
+    public static function trigonometric(float $module, float $fi, int $round = 5): Complex
+    {
+        $real = round($module * cos($fi), $round);
+        $imaginary = round($module * sin($fi), $round);
+        return new TrigonometricComplex($real, $imaginary, $round);
     }
 
 }
